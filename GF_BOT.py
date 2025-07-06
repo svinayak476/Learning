@@ -4,7 +4,7 @@ import random
 import os
 
 # Set your OpenAI API key here
-openai.api_key = "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"  # Or use os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Cute compliments
 compliments = [
