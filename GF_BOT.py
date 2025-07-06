@@ -1,9 +1,10 @@
 import streamlit as st
 import openai
 import random
+import os
 
-# Initialize OpenAI client (for v1.x SDK)
-client = openai.OpenAI(api_key="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")
+# Set your OpenAI API key here
+openai.api_key = "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"  # Or use os.getenv("OPENAI_API_KEY")
 
 # Cute compliments
 compliments = [
@@ -16,7 +17,6 @@ compliments = [
 
 st.set_page_config(page_title="Hey Love 💕", page_icon="🌹")
 st.title("🌹 Hey Love, How Was Your Day?")
-
 st.markdown("Talk to your Bobo 🤗")
 
 if "chat_history" not in st.session_state:
@@ -27,23 +27,28 @@ user_input = st.text_input("You:", "")
 if user_input:
     st.session_state.chat_history.append(("You", user_input))
 
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a sweet, funny, romantic and emotionally intelligent boyfriend. Always support her, flirt a little, and make her feel special. Be gentle, not robotic."},
-            *[
-                {"role": "user" if msg[0] == "You" else "assistant", "content": msg[1]}
-                for msg in st.session_state.chat_history
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a sweet, funny, romantic and emotionally intelligent boyfriend. Always support her, flirt a little, and make her feel special. Be gentle, not robotic."},
+                *[
+                    {"role": "user" if msg[0] == "You" else "assistant", "content": msg[1]}
+                    for msg in st.session_state.chat_history[-6:]  # limit to recent history
+                ]
             ]
-        ]
-    )
+        )
+        bot_reply = response.choices[0].message.content
+    except Exception as e:
+        bot_reply = "Oops, something went wrong 💔"
+        st.error(f"Error from OpenAI: {e}")
 
-    bot_reply = response.choices[0].message.content
     st.session_state.chat_history.append(("Bot", bot_reply))
 
-for speaker, message in st.session_state.chat_history[::-1][:5]:  # show last 5 messages
+# Show last few messages
+for speaker, message in st.session_state.chat_history[::-1][:5]:
     st.write(f"**{speaker}**: {message}")
 
-# Bonus touch: Random compliment button
+# Compliment button
 if st.button("Send me a compliment 💌"):
     st.success(random.choice(compliments))
