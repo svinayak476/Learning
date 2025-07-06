@@ -1,0 +1,5 @@
+streamlit
+openai
+requests
+pyttsx3
+pydub
