@@ -1,5 +1,5 @@
 streamlit
-openai
+openai>=1.1.0
 requests
 pyttsx3
 pydub
