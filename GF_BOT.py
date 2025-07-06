@@ -2,8 +2,8 @@ import streamlit as st
 import openai
 import random
 
-# Set your OpenAI API key here
-openai.api_key = "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"  # replace with your actual key
+# Initialize OpenAI client (for v1.x SDK)
+client = openai.OpenAI(api_key="sk-REPLACE_WITH_YOUR_KEY")
 
 # Cute compliments
 compliments = [
@@ -27,7 +27,7 @@ user_input = st.text_input("You:", "")
 if user_input:
     st.session_state.chat_history.append(("You", user_input))
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a sweet, funny, romantic and emotionally intelligent boyfriend. Always support her, flirt a little, and make her feel special. Be gentle, not robotic."},
@@ -38,7 +38,7 @@ if user_input:
         ]
     )
 
-    bot_reply = response.choices[0].message['content']
+    bot_reply = response.choices[0].message.content
     st.session_state.chat_history.append(("Bot", bot_reply))
 
 for speaker, message in st.session_state.chat_history[::-1][:5]:  # show last 5 messages
