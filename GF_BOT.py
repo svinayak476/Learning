@@ -3,7 +3,7 @@ import openai
 import random
 
 # Initialize OpenAI client (for v1.x SDK)
-client = openai.OpenAI(api_key="sk-REPLACE_WITH_YOUR_KEY")
+client = openai.OpenAI(api_key="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")
 
 # Cute compliments
 compliments = [
