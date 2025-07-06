@@ -1,10 +1,13 @@
 import streamlit as st
-import openai
-import random
+import requests
 import os
+import random
 
-# Set your OpenAI API key here
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Hugging Face API settings
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
+headers = {
+    "Authorization": f"Bearer {os.getenv('HF_API_KEY')}"  # secure method
+}
 
 # Cute compliments
 compliments = [
@@ -27,25 +30,24 @@ user_input = st.text_input("You:", "")
 if user_input:
     st.session_state.chat_history.append(("You", user_input))
 
+    # Build prompt with short history
+    prompt = "You are a sweet, romantic, emotionally intelligent boyfriend. Respond lovingly.\n"
+    for speaker, message in st.session_state.chat_history[-4:]:
+        prompt += f"{speaker}: {message}\n"
+    prompt += "Bot:"
+
+    # Send to HF
     try:
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a sweet, funny, romantic and emotionally intelligent boyfriend. Always support her, flirt a little, and make her feel special. Be gentle, not robotic."},
-                *[
-                    {"role": "user" if msg[0] == "You" else "assistant", "content": msg[1]}
-                    for msg in st.session_state.chat_history[-6:]  # limit to recent history
-                ]
-            ]
-        )
-        bot_reply = response.choices[0].message.content
+        response = requests.post(API_URL, headers=headers, json={"inputs": prompt})
+        response.raise_for_status()
+        bot_reply = response.json()[0]['generated_text'].split("Bot:")[-1].strip()
     except Exception as e:
+        st.error(f"Error from Hugging Face: {e}")
         bot_reply = "Oops, something went wrong 💔"
-        st.error(f"Error from OpenAI: {e}")
 
     st.session_state.chat_history.append(("Bot", bot_reply))
 
-# Show last few messages
+# Display last 5 messages
 for speaker, message in st.session_state.chat_history[::-1][:5]:
     st.write(f"**{speaker}**: {message}")
 
