@@ -17,7 +17,7 @@ compliments = [
 st.set_page_config(page_title="Hey Love 💕", page_icon="🌹")
 st.title("🌹 Hey Love, How Was Your Day?")
 
-st.markdown("Talk to your AI boyfriend 🤗")
+st.markdown("Talk to your Bobo 🤗")
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
